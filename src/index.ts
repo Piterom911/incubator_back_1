@@ -51,6 +51,18 @@ app.post('/products', (req: Request, res: Response) => {
   res.sendStatus(400)
 })
 
+app.put('/products/:id', (req: Request, res: Response) => {
+  let requestId = +req.params.id
+  let newTitle = req.body.title
+  let product = products.find(p => p.id === requestId)
+  if (product && req.body.title) {
+    product.title = req.body.title
+    res.status(200).send(product)
+  } else {
+    res.sendStatus(400)
+  }
+})
+
 app.delete('/products/:id', (req: Request, res: Response) => {
   let productId = +req.params.id
   for (let i = 0; i < products.length; i++) {
