@@ -1,9 +1,13 @@
 import express, { Request, Response } from 'express'
+import bodyParser from 'body-parser'
 const app = express()
 const port = process.env.port || 3000
 
 const products = [{ id: 1, title: "tomato" }, { id: 2, title: "orange", delivery: "bayjin" }]
 const addresses = [{ id: 1, value: "Hüttenberg 6" }, { id: 2, value: "Schillerstr. 25" }]
+
+const parserMiddleware = bodyParser({})
+app.use(parserMiddleware)
 
 app.get('/products', (req: Request, res: Response) => {
   if (req.query.title) {
@@ -24,6 +28,29 @@ app.get('/products/:id', (req: Request, res: Response) => {
   }
 })
 
+app.get('/products/title/:productTitle', (req: Request, res: Response) => {
+  let productTitle = req.params.productTitle
+  let product = products.find(p => p.title === productTitle)
+  if (!product) {
+    res.sendStatus(404)
+  } else {
+    res.send(product)
+  }
+})
+
+app.post('/products', (req: Request, res: Response) => {
+  let newTitle = req.body.title
+  if (newTitle) {
+    let newItem = {
+      id: +(new Date()),
+      title: newTitle
+    }
+    products.push(newItem)
+    res.status(201).send(newItem)
+  }
+  res.sendStatus(400)
+})
+
 app.delete('/products/:id', (req: Request, res: Response) => {
   let productId = +req.params.id
   for (let i = 0; i < products.length; i++) {
@@ -34,16 +61,6 @@ app.delete('/products/:id', (req: Request, res: Response) => {
     }
   }
   res.sendStatus(404)
-})
-
-app.get('/products/title/:productTitle', (req: Request, res: Response) => {
-  let productTitle = req.params.productTitle
-  let product = products.find(p => p.title === productTitle)
-  if (!product) {
-    res.sendStatus(404)
-  } else {
-    res.send(product)
-  }
 })
 
 app.get('/addresses', (req: Request, res: Response) => {
